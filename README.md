@@ -4,11 +4,11 @@ A tool to help concatenate, implemented with a builder pattern
 ## Examples
 
 ```rust
-let mut welder = Welder::from(' ', "foo");
+let welder = Welder::start(' ', "foo");
 
-welder.push("bar");
-welder.push("baz");
-welder.push("boat");
+let welder = welder.push("bar");
+let welder = welder.push("baz");
+let welder = welder.push("boat");
 
 let string: String = welder.weld();
 
@@ -16,14 +16,12 @@ assert_eq!("foo bar baz boat", &string);
 ```
 
 ```rust
-let base = &[12][..];
-let mut welder = Welder::from(0, base);
+let welder = Welder::start(0, 12);
 
-welder.push(14);
-welder.push(16);
-welder.push(18);
-
-let vec: Vec<_> = welder.weld();
+let vec: Vec<_> = welder.push(14)
+                        .push(16)
+                        .push(18)
+                        .weld();
 
 assert_eq!(&[12, 0, 14, 0, 16, 0, 18], vec.as_slice());
 ```

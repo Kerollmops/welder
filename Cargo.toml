@@ -1,7 +1,7 @@
 [package]
 name = "welder"
 description = "A tool to help concatenate, implemented with a builder pattern"
-version = "0.1.0"
+version = "0.2.0"
 documentation = "https://docs.rs/welder"
 repository = "https://github.com/Kerollmops/welder"
 authors = ["Kerollmops <renault.cle@gmail.com>"]
