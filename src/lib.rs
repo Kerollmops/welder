@@ -15,14 +15,14 @@ impl<G, T: Default> Welder<G, T> {
 }
 
 impl<G, T> Welder<G, T> {
-    pub fn from<U>(glue: G, base: &U) -> Self
+    pub fn from<U>(glue: G, base: U) -> Self
     where
-        U: ToOwned + ?Sized,
+        U: ToOwned,
         U::Owned: Into<T>
     {
         Welder {
             glue: glue,
-            welded: Into::into(ToOwned::to_owned(base)),
+            welded: Into::into(ToOwned::to_owned(&base)),
         }
     }
 }
@@ -73,5 +73,32 @@ mod tests {
         let string: String = welder.weld();
 
         assert_eq!("foo bar", &string);
+    }
+
+    #[test]
+    fn string_welder_multiple() {
+        let mut welder = Welder::from(' ', "foo");
+
+        welder.push("bar");
+        welder.push("baz");
+        welder.push("boat");
+
+        let string: String = welder.weld();
+
+        assert_eq!("foo bar baz boat", &string);
+    }
+
+    #[test]
+    fn vec_welder_multiple() {
+        let base = &[12][..];
+        let mut welder = Welder::from(0, base);
+
+        welder.push(14);
+        welder.push(16);
+        welder.push(18);
+
+        let vec: Vec<_> = welder.weld();
+
+        assert_eq!(&[12, 0, 14, 0, 16, 0, 18], vec.as_slice());
     }
 }
