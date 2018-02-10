@@ -75,13 +75,8 @@ impl<G, T: Default> Welder<G, T> {
     where
         T: Extend<E>
     {
-        let mut base = <T as Default>::default();
-        base.extend(once(start));
-
-        Welder {
-            glue: glue,
-            welded: base,
-        }
+        let welder = Welder::new(glue);
+        welder.push_no_glue(start)
     }
 }
 
@@ -104,6 +99,30 @@ impl<G, T> Welder<G, T> {
     pub fn weld(self) -> T {
         self.welded
     }
+
+    /// This will add the element without any glue.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use welder::Welder;
+    ///
+    /// let welder = Welder::with_start(' ', "foo");
+    ///
+    /// let welder = welder.push_no_glue("bar");
+    /// let welder = welder.push_no_glue("baz");
+    ///
+    /// let string: String = welder.weld();
+    ///
+    /// assert_eq!("foobarbaz", &string);
+    /// ```
+    pub fn push_no_glue<E>(mut self, elem: E) -> Self
+    where
+        T: Extend<E>
+    {
+        self.welded.extend(once(elem));
+        self
+    }
 }
 
 impl<G, T> Welder<G, T>
@@ -112,7 +131,7 @@ where
     T: Extend<G>
 {
     /// Push a new value to the already accumulated values.
-    /// This function will add a glue element in front of the elem pushed.
+    /// This function will add a glue element in front of the element.
     ///
     /// # Examples
     ///
@@ -129,13 +148,85 @@ where
     ///
     /// assert_eq!(" foo bar baz", &string);
     /// ```
-    pub fn push<E>(mut self, elem: E) -> Self
+    pub fn push<E>(self, elem: E) -> Self
+    where
+        T: Extend<E>
+    {
+        self.push_glue_left(elem)
+    }
+
+    /// It will add a glue only to right of the element.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use welder::Welder;
+    ///
+    /// let welder = Welder::with_start(' ', "foo");
+    ///
+    /// let welder = welder.push_glue_right("bar");
+    /// let welder = welder.push_glue_right("baz");
+    ///
+    /// let string: String = welder.weld();
+    ///
+    /// assert_eq!("foobar baz ", &string);
+    /// ```
+    pub fn push_glue_right<E>(mut self, elem: E) -> Self
+    where
+        T: Extend<E>
+    {
+        self.welded.extend(once(elem));
+        self.welded.extend(once(self.glue.clone()));
+        self
+    }
+
+    /// This is the default push function.
+    /// It will add a glue only to left of the element.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use welder::Welder;
+    ///
+    /// let welder = Welder::new(' ');
+    ///
+    /// let welder = welder.push_glue_left("foo");
+    ///
+    /// let string: String = welder.weld();
+    ///
+    /// assert_eq!(" foo", &string);
+    /// ```
+    pub fn push_glue_left<E>(mut self, elem: E) -> Self
     where
         T: Extend<E>
     {
         self.welded.extend(once(self.glue.clone()));
         self.welded.extend(once(elem));
+        self
+    }
 
+    /// This will add a glue on both sides of the element.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use welder::Welder;
+    ///
+    /// let welder = Welder::new(' ');
+    ///
+    /// let welder = welder.push_glue_both("foo");
+    ///
+    /// let string: String = welder.weld();
+    ///
+    /// assert_eq!(" foo ", &string);
+    /// ```
+    pub fn push_glue_both<E>(mut self, elem: E) -> Self
+    where
+        T: Extend<E>
+    {
+        self.welded.extend(once(self.glue.clone()));
+        self.welded.extend(once(elem));
+        self.welded.extend(once(self.glue.clone()));
         self
     }
 }
