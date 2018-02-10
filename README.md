@@ -1,10 +1,10 @@
 # welder
-A tool to help concatenate, implemented with a builder pattern
+A tool to help concatenate, implemented with a consuming builder pattern.
 
 ## Examples
 
 ```rust
-let welder = Welder::start(' ', "foo");
+let welder = Welder::with_start(' ', "foo");
 
 let welder = welder.push("bar");
 let welder = welder.push("baz");
@@ -16,7 +16,7 @@ assert_eq!("foo bar baz boat", &string);
 ```
 
 ```rust
-let welder = Welder::start(0, 12);
+let welder = Welder::with_start(0, 12);
 
 let vec: Vec<_> = welder.push(14)
                         .push(16)
